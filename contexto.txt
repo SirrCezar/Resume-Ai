@@ -1,0 +1,83 @@
+Analise o documento ou edital fornecido e extraia as seguintes informações para preencher o modelo de resumo. Caso alguma informação não seja encontrada, retorne 'Não encontrado' para o campo correspondente:
+
+Orgão: (Informe o nome do órgão responsável pelo edital)
+
+Pregão: (Informe o número ou identificação do pregão)
+
+Habitantes: (Informe o número de habitantes, se aplicável)
+
+Processo: (Informe o número do processo)
+
+DL (Despacho de Licitação): (Informe o número do DL, se disponível)
+
+UASG/Código Sistema: (Informe o código UASG ou do sistema utilizado)
+
+Serviço: (Informe o tipo de serviço solicitado (WhatsApp, SMS, E-mail, etc.))
+
+API: (Informe se a API é BSP, ISV, Tech Provider ou Genérica)
+
+Regido pela Lei: (Informe a lei que rege o edital (ex: 14.133/2021))
+
+Certificado/Contrato: (Informe se há certificação ISO, Phillips, Anatel, etc)
+
+IA (Inteligência Artificial): (Informe se há menção a IA no edital)
+
+Short Code: (Informe se há short code único ou exclusivo)
+
+% por Status de Entrega no Último Ano: (Informe a porcentagem de entregas no último ano, se disponível)
+
+Operadoras: (Informe as operadoras envolvidas, se mencionadas.)
+
+Data e Horário da Sessão: (Informe a data e horário da sessão de licitação)
+
+Acolhimento de Proposta: (Informe o período de acolhimento de propostas)
+
+Validade da Proposta: (Informe a validade da propost)
+
+Contato: (Informe o contato responsável, se disponível)
+
+Esclarecimento/Impugnação: (Informe o período para esclarecimentos ou impugnações)
+
+Modo de Disputa: (Informe o modo de disputa (ex: menor preço, melhor técnica, etc.), nesse campo preciso que você traga mais do que apenas uma palavra, dê todo o contexto do modo de disputa, tempo, se é aberto ou fechado, no mínimo 2 linhas)
+
+Intervalo de Lance: (Informe o intervalo de lances, se aplicável)
+
+Imputação da Proposta e Documentação de Habilitação: (Informe os requisitos para imputação da proposta e documentação de habilitação)
+
+Quantidade: (Informe a quantidade de itens ou serviços solicitados)
+
+Valor Estimado: (Informe o valor estimado da licitação, se disponível)
+
+5% EPP/ME: (Informe se há benefício para EPP/ME (Empresa de Pequeno Porte/Microempresa))
+
+Casas Decimais: (Informe o número de casas decimais permitidas nos lances)
+
+Proposta Pode Ser Identificada: (Informe se a proposta pode ser identificada, eu quero que você me informe se eles possuem modelo de proposta, que pode vir ou não como anexo)
+
+Índice de Reajuste: (Informe o índice de reajuste, se aplicável)
+
+Intenção de Recurso: (Informe se há intenção de recurso e o tempo em minutos para tal)
+
+Recurso/Contrarrazões: (Informe o período para recursos ou contrarrazões)
+
+Garantia Contratual: (Informe se há garantia contratual e qual o valor)
+
+Forma de Entrega: (Informe a forma de entrega dos serviços ou produtos)
+
+POC/Demonstração: (Informe se há necessidade de POC (Prova de Conceito) ou demonstração)
+
+Online/Presencial: (Informe se a POC da licitação é online, presencial ou ambas.)
+
+Declarações: (Informe se há declarações específicas a serem feitas)
+
+Consórcio: (Informe se é permitido consórcio entre empresas)
+
+Subcontratação: (Informe se é permitida a subcontratação)
+
+Objeto: (Descreva o objeto da licitação)
+
+Especificações do Objeto: (Informe as especificações técnicas ou detalhes do objeto)
+
+Habilitação (você precisa listar todos os documentos exigidas em cada uma das 4 habilitações: jurídica / fiscal / econômica / técnica): (Informe os requisitos de habilitação jurídica, fiscal, social, trabalhista, econômico-financeira e técnico-operacional tendo em vista que somos uma sociedade simples)
+
+Contrato: (Informe os detalhes do contrato, se disponíveis).
