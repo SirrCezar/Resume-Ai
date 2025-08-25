@@ -101,4 +101,11 @@ Esse é o seu template do Word. Utilize um modelo que você já tem e apenas adi
 
 -----
 
-Isso aqui resolveu um problemão pra mim, e espero que resolva o seu também. Se achar algum bug ou tiver uma ideia pra melhorar, abre uma *issue* lá no GitHub. Tamo junto\!
+## 🚶 Próximos Passos!
+
+- Melhorar a aparência da interface gráfica (tkinter deixa a desejar as vezes)
+- Possibilidade de modelos de resumo já prontos para serem usados
+- Um executável para maior portabilidade
+- Mais...
+
+Isso aqui resolveu um problemão pra mim, e espero que resolva o seu também. Se achar algum bug ou tiver uma ideia pra melhorar, abre uma *issue* no GitHub. Tamo junto\!
