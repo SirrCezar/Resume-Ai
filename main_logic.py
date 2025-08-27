@@ -1,18 +1,14 @@
 from docx import Document
+from docx.shared import RGBColor
 from pypdf import PdfReader
 from openai import OpenAI
 from dotenv import load_dotenv
 import os
 import json
 
-####### CARREGAR AS VARIÁVEIS DO ARQUIVO ENV ###########################
 load_dotenv()
 
-####### FUNÇÃO PRA EXTRAIR E PADRONIZAR A RESPOSTA DA IA ################
 def limpar_e_extrair_json(resposta_ia):
-    """
-    Extrai uma string JSON de uma resposta de texto maior, ignorando texto adicional.
-    """
     try:
         inicio_json = resposta_ia.find('{')
         fim_json = resposta_ia.rfind('}')
@@ -26,59 +22,47 @@ def limpar_e_extrair_json(resposta_ia):
         print(f"Erro ao tentar limpar a resposta da IA: {e}")
         return None
 
-####### FUNÇÃO PARA PREENCHER O DOCX COM A RESPOSTA PARDRONIZADA ################
+def puxar_paragrafo(documento):
+    for paragrafo in documento.paragraphs:
+        yield paragrafo
+    for tabela in documento.tables:
+        for linha in tabela.rows:
+            for celula in linha.cells:
+                for paragrafo in celula.paragraphs:
+                    yield paragrafo
 
-def preencher_documento(dados, caminho_template, caminho_saida):
-    """
-    Preenche um documento .docx a partir de um template.
-    Esta versão procura os placeholders em parágrafos normais E dentro de tabelas.
-    """
-    try:
-        modelo = Document(caminho_template)
-        print(f"\n--- Iniciando preenchimento do template: '{caminho_template}' ---")
+def substituir_formatar(documento, dados):
+    print("#### Iniciando Substituição ####")
+    for paragrafo in puxar_paragrafo(documento):
+        for chave, valor in dados.items():
+            substituto = f'[{chave}]'
+            texto_formatado = ''.join(run.text for run in paragrafo.runs)
 
-        chaves_utilizadas = {chave: False for chave in dados}
+            if substituto in texto_formatado:
+                runs = paragrafo.runs
+                idx_inicio, idx_fim = -1, -1
+                texto_temp = ''
 
-        for paragrafo in modelo.paragraphs:
-            for chave, valor in dados.items():
-                substituto = f'[{chave}]'
-                if substituto in paragrafo.text:
-                    valor_str = str(valor)
-                    print(f"-> Encontrado '{substituto}' no corpo do texto. Substituindo...")
-                    paragrafo.text = paragrafo.text.replace(substituto, valor_str)
-                    chaves_utilizadas[chave] = True
+                for i, run in enumerate(runs): 
+                    texto_temp += run.text
+                    if substituto in texto_temp:
+                        if idx_inicio == -1:
+                            idx_inicio = i
+                        idx_fim = i
+                        break
 
-        for tabela in modelo.tables:
-            for linha in tabela.rows:
-                for celula in linha.cells:
-                    for paragrafo in celula.paragraphs:
-                        for chave, valor in dados.items():
-                            substituto = f'[{chave}]'
-                            if substituto in paragrafo.text:
-                                valor_str = str(valor)
-                                print(f"-> Encontrado '{substituto}' em uma tabela. Substituindo...")
-                                paragrafo.text = paragrafo.text.replace(substituto, valor_str)
-                                chaves_utilizadas[chave] = True
-        
-        modelo.save(caminho_saida)
-        print(f"\n--- SUCESSO ---")
-        print(f"Documento final salvo em: '{caminho_saida}'")
+                if idx_inicio != -1:
+                    run_alvo = runs[idx_inicio]
+                    run_alvo.text = str(valor)
 
-        chaves_nao_encontradas = [chave for chave, utilizada in chaves_utilizadas.items() if not utilizada]
-        if chaves_nao_encontradas:
-            print("\nAVISO: As seguintes chaves do JSON não foram encontradas como placeholders no documento:")
-            for chave in chaves_nao_encontradas:
-                print(f"- {chave}")
+                    run_alvo.bold = True
+                    run_alvo.font.color.rgb = RGBColor(0, 0, 139)
 
-    except FileNotFoundError:
-        print(f"\n--- ERRO CRÍTICO ---")
-        print(f"O arquivo de template '{caminho_template}' não foi encontrado. Verifique o nome e o caminho.")
-    except Exception as e:
-        print(f"\n--- ERRO CRÍTICO ---")
-        print(f"Ocorreu um erro ao preencher ou salvar o documento: {e}")
+                    for i in range(idx_inicio + 1, idx_fim + 1):
+                        runs[i].text = ''
 
+                    print(f"-> Substituído '{substituto}' com formatação.")
 
-####### EXTRAIR O TEXTO DO PDF QUE SERÁ ENVIADO PARA A IA ################
 
 def extrair_texto(caminho_pdf):
     try:
@@ -95,8 +79,6 @@ def extrair_texto(caminho_pdf):
     except Exception as e:
         print(f"Erro: Ocorreu um erro ao extrair o texto do PDF: {e}")
         return None
-
-####### FUNÇÃO ENVIAR PARA A IA ################
 
 def analisar_edital(caminho_pdf):
     print("Iniciando a análise do edital. Isso pode levar alguns momentos...")
@@ -136,13 +118,10 @@ def analisar_edital(caminho_pdf):
         print(f"Erro ao fazer a requisição para a API: {e}")
         return None
 
-####### FUNÇÃO START DE TUDO ################
-
 def main():
     script_dir = os.path.dirname(os.path.abspath(__file__))
-    
     caminho_edital_pdf = os.path.join(script_dir, 'EDITAL.pdf')
-    caminho_modelo_docx = os.path.join(script_dir, 'RESUMO_SMP..docx') # Corrigi o nome, verifique se está certo
+    caminho_modelo_docx = os.path.join(script_dir, 'RESUMO_SMP..docx')
     caminho_arquivo_final = os.path.join(script_dir, 'Edital Analisado - Final.docx')
 
     resposta_bruta_ia = analisar_edital(caminho_edital_pdf)
@@ -157,7 +136,10 @@ def main():
                 print("\n--- JSON recebido e processado ---")
                 print(json.dumps(dados_edital, indent=2, ensure_ascii=False)) # Imprime o JSON de forma legível
 
-                preencher_documento(dados_edital, caminho_modelo_docx, caminho_arquivo_final)
+                documento = Document(caminho_modelo_docx)
+                substituir_formatar(documento, dados_edital)
+
+                documento.save(caminho_arquivo_final)
 
             except json.JSONDecodeError:
                 print("\n--- ERRO DE DECODIFICAÇÃO ---")
@@ -168,6 +150,5 @@ def main():
             print("Não foi possível extrair um JSON da resposta da IA. Resposta crua:")
             print(resposta_bruta_ia)
 
-####### BLOCO DE EXEC ################
 if __name__ == "__main__":
     main()
