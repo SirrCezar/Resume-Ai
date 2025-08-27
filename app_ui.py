@@ -1,20 +1,24 @@
 import tkinter as tk
 from tkinter import ttk, filedialog, scrolledtext
+from docx import Document
 import threading
 import os
 import sys
 import json
 
-from main_logic import analisar_edital, limpar_e_extrair_json, preencher_documento
+# Importa a lógica do seu arquivo principal
+from main_logic import analisar_edital, limpar_e_extrair_json, substituir_formatar
 
+# --- Paleta de cores inspirada na sua imagem ---
 COLORS = {
     "bg_dark": "#2c313c",
     "bg_medium": "#454952",
     "bg_light": "#5a5f6a",
     "text_light": "#f0f0f0",
-    "accent_green": "#0a3b1e"
+    "accent_green": "#27ae60"
 }
 
+# --- Classe para redirecionar o 'print' para a caixa de texto na UI ---
 class PrintLogger:
     def __init__(self, text_widget, root):
         self.text_widget = text_widget
@@ -33,6 +37,7 @@ class PrintLogger:
     def flush(self):
         pass
 
+# --- Classe Principal da Janela da Interface ---
 class AnalisadorApp:
     def __init__(self, root):
         self.root = root
@@ -43,13 +48,16 @@ class AnalisadorApp:
         self.setup_styles()
         self.create_widgets()
         
+        # Redireciona o 'print'
         sys.stdout = PrintLogger(self.log_textbox, self.root)
         print("Bem-vindo! Selecione o edital e o local para salvar.\n")
 
     def setup_styles(self):
+        # Configura um estilo para os widgets ttk
         style = ttk.Style()
-        style.theme_use('clam')
+        style.theme_use('clam') # Um tema base que é mais fácil de customizar
         
+        # Estilo para botões
         style.configure('TButton',
                         background=COLORS["bg_light"],
                         foreground=COLORS["text_light"],
@@ -59,19 +67,23 @@ class AnalisadorApp:
         style.map('TButton',
                   background=[('active', COLORS["bg_medium"])])
 
+        # Estilo especial para o botão principal
         style.configure('Accent.TButton',
                         background=COLORS["accent_green"],
                         font=('Arial', 12, 'bold'))
         style.map('Accent.TButton',
                   background=[('active', '#2ecc71')])
 
+        # Estilo para labels e frames
         style.configure('TLabel', background=COLORS["bg_dark"], foreground=COLORS["text_light"], font=('Arial', 12, 'bold'))
         style.configure('TFrame', background=COLORS["bg_dark"])
 
     def create_widgets(self):
+        # Frame principal para conter tudo
         main_frame = ttk.Frame(self.root, padding="20")
         main_frame.pack(expand=True, fill='both')
 
+        # --- Seleção de Edital ---
         pdf_label = ttk.Label(main_frame, text="1. Selecione o Edital (.pdf)")
         pdf_label.pack(fill='x', pady=(0, 5))
         
@@ -85,6 +97,7 @@ class AnalisadorApp:
         self.pdf_browse_button = ttk.Button(pdf_frame, text="Procurar...", command=self.select_pdf)
         self.pdf_browse_button.pack(side='right', padx=(10, 0))
 
+        # --- Local para Salvar ---
         save_label = ttk.Label(main_frame, text="2. Escolha onde salvar o Resumo (.docx)")
         save_label.pack(fill='x', pady=(0, 5))
 
@@ -98,9 +111,11 @@ class AnalisadorApp:
         self.save_browse_button = ttk.Button(save_frame, text="Salvar como...", command=self.select_save_path)
         self.save_browse_button.pack(side='right', padx=(10, 0))
 
+        # --- Botão de Ação ---
         self.analyze_button = ttk.Button(main_frame, text="Analisar Edital", style='Accent.TButton', command=self.start_analysis_thread, state='disabled')
         self.analyze_button.pack(fill='x', pady=10)
 
+        # --- Área de Log ---
         log_label = ttk.Label(main_frame, text="Log de Atividade:")
         log_label.pack(fill='x', pady=(10, 5))
         
@@ -148,7 +163,9 @@ class AnalisadorApp:
                 json_limpo = limpar_e_extrair_json(resposta_bruta_ia)
                 if json_limpo:
                     dados_edital = json.loads(json_limpo)
-                    preencher_documento(dados_edital, template_path, save_path)
+                    documento = Document(template_path)
+                    substituir_formatar(documento, dados_edital)
+                    documento.save(save_path)
                 else:
                     print("\n--- ERRO: Não foi possível extrair um JSON da resposta da IA ---\n")
         except Exception as e:
